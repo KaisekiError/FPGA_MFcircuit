@@ -14,7 +14,10 @@ architecture sim of tb_circuit is
   signal start   : std_logic := '0';
   signal done_1  : std_logic;
 
-  signal uC1, uC2, iL1, iL2 : std_logic_vector(31 downto 0) := (others => '0');
+  signal uC1 : std_logic_vector(31 downto 0) := x"3F19999A";
+  signal uC2 : std_logic_vector(31 downto 0) := x"3F19999A";
+  signal iL1 : std_logic_vector(31 downto 0) := x"3A1D4952";
+  signal iL2 : std_logic_vector(31 downto 0) := x"3A1D4952";
 
   -- 时钟周期
   constant CLK_PERIOD : time := 10 ns;
