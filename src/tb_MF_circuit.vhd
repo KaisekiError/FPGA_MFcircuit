@@ -1,125 +1,122 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use std.textio.all;
 
-entity tb_circuit is
-end entity;
+entity tb_euler_old is
+end entity tb_euler_old;
 
-architecture sim of tb_circuit is
+architecture behavior of tb_euler_old is
 
-  -- DUT 端口信号
-  signal clk     : std_logic := '0';
-  signal rst     : std_logic := '1';
-  signal start   : std_logic := '0';
-  signal done_1  : std_logic;
+    -- Component Declaration for the Unit Under Test (UUT)
+    component euler_old
+    port (
+        clk    : in  std_logic;
+        rst    : in  std_logic;
+        start  : in  std_logic;
+        f1_in  : in  std_logic_vector(31 downto 0);
+        f2_in  : in  std_logic_vector(31 downto 0);
+        f3_in  : in  std_logic_vector(31 downto 0);
+        f4_in  : in  std_logic_vector(31 downto 0);
+        f1_out : out std_logic_vector(31 downto 0);
+        f2_out : out std_logic_vector(31 downto 0);
+        f3_out : out std_logic_vector(31 downto 0);
+        f4_out : out std_logic_vector(31 downto 0);
+        ready  : out std_logic
+    );
+    end component;
 
-  signal uC1 : std_logic_vector(31 downto 0) := x"3F19999A";
-  signal uC2 : std_logic_vector(31 downto 0) := x"3F19999A";
-  signal iL1 : std_logic_vector(31 downto 0) := x"3A1D4952";
-  signal iL2 : std_logic_vector(31 downto 0) := x"3A1D4952";
+    -- Inputs
+    signal clk   : std_logic := '0';
+    signal rst   : std_logic := '1';
+    signal start : std_logic := '0';
+    signal f1_in : std_logic_vector(31 downto 0) := (others => '0');
+    signal f2_in : std_logic_vector(31 downto 0) := (others => '0');
+    signal f3_in : std_logic_vector(31 downto 0) := (others => '0');
+    signal f4_in : std_logic_vector(31 downto 0) := (others => '0');
 
-  -- 时钟周期
-  constant CLK_PERIOD : time := 10 ns;
+    -- Outputs
+    signal f1_out : std_logic_vector(31 downto 0);
+    signal f2_out : std_logic_vector(31 downto 0);
+    signal f3_out : std_logic_vector(31 downto 0);
+    signal f4_out : std_logic_vector(31 downto 0);
+    signal ready  : std_logic;
+
+    -- Clock period definitions
+    constant clk_period : time := 10 ns;
+
+    -- Test data
+    constant TEST_F1 : std_logic_vector(31 downto 0) := x"3F800000";
+    constant TEST_F2 : std_logic_vector(31 downto 0) := x"40000000";
+    constant TEST_F3 : std_logic_vector(31 downto 0) := x"40400000";
+    constant TEST_F4 : std_logic_vector(31 downto 0) := x"40800000";
 
 begin
 
-  -------------------------------------------------------------------
-  -- 时钟生成
-  -------------------------------------------------------------------
-  clk_process : process
-  begin
-    while true loop
-      clk <= '0';
-      wait for CLK_PERIOD/2;
-      clk <= '1';
-      wait for CLK_PERIOD/2;
-    end loop;
-  end process;
-
-  -------------------------------------------------------------------
-  -- DUT 实例化
-  -------------------------------------------------------------------
-  uut: entity work.circuit
+    -- Instantiate the Unit Under Test (UUT)
+    uut: euler_old
     port map (
-      clk    => clk,
-      rst    => rst,
-      start  => start,
-      done_1 => done_1,
-      uC1    => uC1,
-      uC2    => uC2,
-      iL1    => iL1,
-      iL2    => iL2
+        clk    => clk,
+        rst    => rst,
+        start  => start,
+        f1_in  => f1_in,
+        f2_in  => f2_in,
+        f3_in  => f3_in,
+        f4_in  => f4_in,
+        f1_out => f1_out,
+        f2_out => f2_out,
+        f3_out => f3_out,
+        f4_out => f4_out,
+        ready  => ready
     );
 
-  -------------------------------------------------------------------
-  -- 激励过程
-  -------------------------------------------------------------------
-  stim_proc : process
-  constant TOTAL_CYCLES : integer := 100;  -- 总共计算次数
-  variable current_cycle : integer := 0;
-  begin
-  -- Reset
-    rst <= '1';
-    wait for 100 ns;
-    rst <= '0';
-    
-   while current_cycle < TOTAL_CYCLES loop
-      -- 启动单次计算
-      start <= '1';
-      wait until rising_edge(clk);  -- 等待下一个时钟上升沿
-      start <= '0';
-      
-      -- 等待计算完成（done_1拉高）
-      wait until done_1 = '1';
-      
-      current_cycle := current_cycle + 1;
-      
-      -- 每100次计算报告一次进度
-      if current_cycle mod 100 = 0 then
-        report "qwq";
-      end if;
-      
-    end loop;
-  wait for 200 us;
-  wait;
-  end process;
-
-  -------------------------------------------------------------------
-  -- 文件写出过程 (导出 CSV，二进制字符串)
-  -------------------------------------------------------------------
-  write_proc : process(clk)
-    file out_file : text open write_mode is "results.csv";
-    variable L : line;
-
-    -- 辅助函数：std_logic_vector → string
-    function slv_to_str(slv : std_logic_vector) return string is
-      variable result : string(1 to slv'length);
+    -- Clock process
+    clk_process : process
     begin
-      for i in slv'range loop
-        if slv(i) = '1' then
-          result(slv'length - i) := '1';
-        else
-          result(slv'length - i) := '0';
-        end if;
-      end loop;
-      return result;
-    end function;
+        clk <= '0';
+        wait for clk_period/2;
+        clk <= '1';
+        wait for clk_period/2;
+    end process;
 
-  begin
-    if rising_edge(clk) then
-      if done_1 = '1' then
-        -- 写 CSV：uC1,uC2,iL1,iL2
-        write(L, slv_to_str(uC1));
-        write(L, string'(","));
-        write(L, slv_to_str(uC2));
-        write(L, string'(","));
-        write(L, slv_to_str(iL1));
-        write(L, string'(","));
-        write(L, slv_to_str(iL2));
-        writeline(out_file, L);
-      end if;
-    end if;
-  end process;
+    -- Stimulus process
+    stim_proc: process
+    begin
+        -- Initialize
+        report "Starting testbench simulation";
+        
+        -- Hold reset state for 2 clock cycles
+        rst <= '1';
+        wait for clk_period * 2;
+        
+        -- Release reset
+        rst <= '0';
+        wait for clk_period * 2;
+        
+        -- Apply test inputs
+        f1_in <= TEST_F1;
+        f2_in <= TEST_F2;
+        f3_in <= TEST_F3;
+        f4_in <= TEST_F4;
+        
+        -- Start the computation
+        start <= '1';
+        wait for clk_period;
+        start <= '0';
+        
+        -- Wait for completion
+        wait until ready = '1';
+        wait for clk_period;
+        
+        -- Display completion message
+        report "Simulation completed successfully!";
+        report "Check waveforms to verify output values";
+        
+        -- Wait a few more cycles and then finish
+        wait for clk_period * 5;
+        
+        -- End simulation
+        report "Testbench completed" severity failure;
+        
+    end process;
 
-end architecture sim;
+end architecture behavior;

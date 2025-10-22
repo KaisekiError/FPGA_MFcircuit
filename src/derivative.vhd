@@ -32,10 +32,7 @@ architecture rtl of derivative is
   --------------------------------------------------------------------
   signal t0, t1    : std_logic_vector(31 downto 0) := (others => '0');
   signal z: std_logic_vector(31 downto 0) := (others => '0');
-  -- 内部 done 信号
-  signal done_int : std_logic := '0';
-
-
+  
   --------------------------------------------------------------------
   -- FPU, TANH signal
   --------------------------------------------------------------------
@@ -112,14 +109,14 @@ begin
     if rst = '1' then
       st       <= IDLE;
       start_i  <= '0';
-      done_int <= '0';
       start_t <= '0';
       t0 <= (others => '0');
       t1 <= (others => '0');
       z <= (others => '0');
+      done_1 <= '0';
     elsif rising_edge(clk) then
       start_i  <= '0';   -- 默认 0
-      done_int <= '0';   -- 同上
+      done_1 <= '0';   -- 同上
       start_t <= '0';   
 
       case st is
@@ -258,6 +255,7 @@ begin
            if ready ='1'then
                 uC2_out <= y;
                 st <= IDLE;
+                done_1 <= '1';
            end if;
                       
       when others => 
@@ -266,8 +264,4 @@ begin
       end case;
     end if;
   end process;
-
-  -- 内部信号驱动外部端口
-  done_1 <= done_int;
-
 end architecture;
