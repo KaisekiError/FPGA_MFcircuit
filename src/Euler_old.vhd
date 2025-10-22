@@ -24,7 +24,7 @@ entity euler_old is
 end entity;
 
 architecture rtl of euler_old is
-  type st_t is (IDLE, CAL_WAIT, UPDATE_WAIT, DONE);
+  type st_t is (IDLE, CAL_WAIT, START_WAIT, UPDATE_WAIT, DONE);
   type slv_array is array(0 to 3) of std_logic_vector(31 downto 0);
   type op_array is array(0 to 3) of std_logic_vector(2 downto 0);
   type bool_array is array(0 to 3) of std_logic;
@@ -40,7 +40,6 @@ architecture rtl of euler_old is
   signal start_e        : std_logic;
   signal f, x, euler    : slv_array;
   signal ready_e        : bool_array;
-  signal dt             : std_logic_vector(31 downto 0);
 
 begin
     u_derivative : entity work.derivative
@@ -63,7 +62,7 @@ begin
       u_euler: entity work.Euler
         port map (
           clk_i       => clk,
-          delta_t     => dt,     
+          delta_t     => DT,     
           start_euler => start_e,
           xf          => f(i),
           x0          => x(i),
@@ -98,16 +97,17 @@ begin
             st_rk  <= CAL_WAIT;
           end if;
         when CAL_WAIT =>  -- x0+k*DT
-          if done_1='1' then
-            start_e <= '1';                
+          if done_1='1' then               
             x(0) <= f1_in; f(0) <= uC1_out;
             x(1) <= f2_in; f(1) <= uC2_out;
             x(2) <= f3_in; f(2) <= iL1_out;
             x(3) <= f4_in; f(3) <= iL2_out;
-            dt <= DT;
-            st_rk <= UPDATE_WAIT;
+            st_rk <= START_WAIT;
           end if;
-        when UPDATE_WAIT => 
+        when START_WAIT => 
+             start_e <= '1';
+             st_rk <= UPDATE_WAIT;
+        when UPDATE_WAIT =>
           if all_euler_ready then
             f1_out <= euler(0);
             f2_out <= euler(1);

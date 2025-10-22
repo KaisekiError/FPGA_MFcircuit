@@ -4,8 +4,6 @@ use ieee.numeric_std.all;
 use work.para.all;
 
 
-
-
 entity derivative is
   port(
     clk   : in  std_logic;

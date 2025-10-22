@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.para.all;
 
 entity tb_euler_old is
 end entity tb_euler_old;
@@ -45,10 +46,10 @@ architecture behavior of tb_euler_old is
     constant clk_period : time := 10 ns;
 
     -- Test data
-    constant TEST_F1 : std_logic_vector(31 downto 0) := x"3F800000";
-    constant TEST_F2 : std_logic_vector(31 downto 0) := x"40000000";
-    constant TEST_F3 : std_logic_vector(31 downto 0) := x"40400000";
-    constant TEST_F4 : std_logic_vector(31 downto 0) := x"40800000";
+    constant TEST_F1 : std_logic_vector(31 downto 0) := x"3F19999A";
+    constant TEST_F2 : std_logic_vector(31 downto 0) := x"3F19999A";
+    constant TEST_F3 : std_logic_vector(31 downto 0) := x"3A1D4952";
+    constant TEST_F4 : std_logic_vector(31 downto 0) := x"3A1D4952";
 
 begin
 
