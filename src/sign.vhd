@@ -12,8 +12,9 @@ entity sign is
     ready_sign : out std_logic;                      -- 输出 ready
     sign_out   : out std_logic_vector(31 downto 0)   -- 输出 
   );
+end entity;
 
-  architecture rtl of sign is
+architecture rtl of sign is
   
   constant POSITIVE_ONE   : std_logic_vector(31 downto 0) := X"3F800000";  -- +1.0
   constant NEGATIVE_ONE   : std_logic_vector(31 downto 0) := X"BF800000";  -- -1.0
