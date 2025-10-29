@@ -43,13 +43,14 @@ architecture behavior of tb_euler_old is
     signal ready  : std_logic;
 
     -- Clock period definitions
-    constant clk_period : time := 10 ns;
+    constant clk_period : time := 5 ns;
 
     -- Test data
     constant TEST_F1 : std_logic_vector(31 downto 0) := x"3F19999A";
     constant TEST_F2 : std_logic_vector(31 downto 0) := x"3F19999A";
     constant TEST_F3 : std_logic_vector(31 downto 0) := x"3A1D4952";
     constant TEST_F4 : std_logic_vector(31 downto 0) := x"3A1D4952";
+    constant NUM_ITERATIONS : integer := 10;
 
 begin
 
@@ -81,6 +82,7 @@ begin
 
     -- Stimulus process
     stim_proc: process
+        variable iteration_count : integer := 0;
     begin
         -- Initialize
         report "Starting testbench simulation";
@@ -102,19 +104,26 @@ begin
         -- Start the computation
         start <= '1';
         wait for clk_period;
-        start <= '0';
         
         -- Wait for completion
         wait until ready = '1';
         wait for clk_period;
+
+        while iteration_count < NUM_ITERATIONS loop
+            if iteration_count < NUM_ITERATIONS - 1 then
+                f1_in <= f1_out;
+                f2_in <= f2_out;
+                f3_in <= f3_out;
+                f4_in <= f4_out;
+            end if;
+
+            wait until ready = '1';
+            iteration_count := iteration_count + 1;
+            wait for clk_period * 2;
+        end loop;
         
-        -- Display completion message
-        report "Simulation completed successfully!";
-        report "Check waveforms to verify output values";
-        
-        -- Wait a few more cycles and then finish
         wait for clk_period * 5;
-        
+
         -- End simulation
         report "Testbench completed" severity failure;
         
