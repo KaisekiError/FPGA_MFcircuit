@@ -56,10 +56,7 @@ begin
           
         when DONE =>
           ready_sign <= '1';
-          if start_sign = '0' then
-            state <= IDLE;
-            ready_sign <= '0';
-          end if;
+          state <= IDLE;
           
       end case;
     end if;
