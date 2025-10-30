@@ -114,7 +114,7 @@ ufpu2: entity work.fpu
       start_1  <= '0';   -- 默认 0
       done_1 <= '0';   -- 同上
       start_2 <= '0';   
-      done_2 <= '0';   -- 同上
+
       done <= '0';
       case st_1 is
 
@@ -177,6 +177,7 @@ ufpu2: entity work.fpu
       when IDLE =>
     
       when EQ1_ADD1_WAIT_2 =>    
+                done_2 = '0';
                 opa_2 <= iL1_in;
                 opb_2 <= iL2_in;
                 op_2 <="000";--ADD
