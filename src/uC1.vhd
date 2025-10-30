@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use work.para.all;
 
 
-entity der_uc1 is
+entity uC1_circuit is
   port(
     clk   : in  std_logic;
     rst   : in  std_logic;
@@ -17,14 +17,7 @@ entity der_uc1 is
   );
 end entity;
 
-architecture rtl of der_uc1 is
-
-
-  --------------------------------------------------------------------
-  -- register signal
-  --------------------------------------------------------------------
-  signal t0, t1    : std_logic_vector(31 downto 0) := (others => '0');
-
+architecture rtl of uC1_circuit is
   --------------------------------------------------------------------
   -- FPU, SIGN signal
   --------------------------------------------------------------------
@@ -39,12 +32,11 @@ signal start_2     : std_logic := '0';
 signal ready_2       : std_logic;
 
 signal ready     : std_logic;   
-signal done_2     : std_logic;
-signal done_1     : std_logic;    
+signal done_2     : std_logic;    
 --------------------------------------------------------------------
 -- FSM states
 
-type state_t_1 is (
+type state_uC_1 is (
   IDLE,
   --FPU1
   EQ1_SUB1_WAIT_1,
@@ -54,10 +46,10 @@ type state_t_1 is (
   EQ1_ADD4_WAIT_1,
   DONE
 );
-signal st_1 : state_t_1 := IDLE;
+signal st_1 : state_uC_1 := IDLE;
 
 
-type state_t_2 is (
+type state_uC_2 is (
   IDLE,
   --FPU2
   EQ1_ADD1_WAIT_2,
@@ -65,7 +57,7 @@ type state_t_2 is (
   
   DONE
 );
-signal st_2 : state_t_2 := IDLE;
+signal st_2 : state_uC_2 := IDLE;
 
 
 begin
@@ -106,15 +98,10 @@ ufpu2: entity work.fpu
       st_2      <= IDLE;
       start_1  <= '0';
       start_2  <= '0';
-      t0 <= (others => '0');
-      t1 <= (others => '0');
-      done_1 <= '0';
       done_2 <= '0';
     elsif rising_edge(clk) then
       start_1  <= '0';   -- 默认 0
-      done_1 <= '0';   -- 同上
       start_2 <= '0';   
-
       done <= '0';
       case st_1 is
 
@@ -183,7 +170,6 @@ ufpu2: entity work.fpu
                 op_2 <="000";--ADD
                 start_2 <='1';
                 st_2 <= EQ1_MUL2_WAIT_2;
-           end if; 
       when EQ1_MUL2_WAIT_2 =>          
            if ready_2 ='1'then
                 opa_2 <= y_2;

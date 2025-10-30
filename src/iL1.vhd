@@ -12,7 +12,6 @@ entity il1_circuit is
     done_il1  : out std_logic;  
     
     uC1_in    : in std_logic_vector(31 downto 0);
-    uC2_in    : in std_logic_vector(31 downto 0);
     iL1_in    : in std_logic_vector(31 downto 0);
     iL1_out   : out std_logic_vector(31 downto 0)
   );

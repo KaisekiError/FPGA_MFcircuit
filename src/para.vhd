@@ -18,7 +18,8 @@ package para is
   constant VTH       : std_logic_vector(31 downto 0) := x"3F19999A"; -- 0.6
   constant K_BETA    : std_logic_vector(31 downto 0) := x"43480000"; -- 200.0
 
-
+  constant ZERO      : std_logic_vector(31 downto 0) := x"00000000"; -- 0
+  constant NEG_ONE   : std_logic_vector(31 downto 0) := x"BF800000"; -- -1.0
   constant ONE       : std_logic_vector(31 downto 0) := x"3F800000"; -- 1.0
   constant TWO       : std_logic_vector(31 downto 0) := x"40000000"; -- 2.0
   constant HALF      : std_logic_vector(31 downto 0) := x"3F000000"; -- 0.5
