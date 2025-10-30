@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use work.para.all;
 
 
-entity derivative is
+entity der_uc1 is
   port(
     clk   : in  std_logic;
     rst   : in  std_logic;
@@ -17,7 +17,7 @@ entity derivative is
   );
 end entity;
 
-architecture rtl of derivative is
+architecture rtl of der_uc1 is
 
 
   --------------------------------------------------------------------
@@ -164,7 +164,7 @@ ufpu2: entity work.fpu
            end if;
                       
       when others => 
-           st <= IDLE;
+           st_1 <= IDLE;
           
       end case;
 
@@ -194,12 +194,12 @@ ufpu2: entity work.fpu
       when DONE =>          
            if ready_2 ='1'then
                done_2 = '1';
-               st <= IDLE
+               st_2 <= IDLE
            end if;
 
                       
       when others => 
-           st <= IDLE;
+           st_2 <= IDLE;
           
       end case;
     end if;
