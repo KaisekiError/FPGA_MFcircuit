@@ -67,12 +67,11 @@ begin
       done_il2 <= '0';
     elsif rising_edge(clk) then
       start_i  <= '0';   -- 默认 0
-      done_il2 <= '0';   -- 同上
-
       case st is
 
         when IDLE =>
           if start = '1' then
+            done_il2 <= '0';   -- 同上
             st <= EQ4_SUB1_WAIT; 
            end if;   
       when EQ4_SUB1_WAIT =>          --TODO: EQ4: uC1-uC2

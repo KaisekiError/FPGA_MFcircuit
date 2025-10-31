@@ -9,7 +9,7 @@ entity uC2_circuit is
     clk   : in  std_logic;
     rst   : in  std_logic;
     start : in  std_logic;
-    done  : out std_logic; 
+    done_UC2  : out std_logic; 
     uC2_in    : in std_logic_vector(31 downto 0);
     iL1_in    : in std_logic_vector(31 downto 0);
     iL2_in    : in std_logic_vector(31 downto 0);
@@ -106,11 +106,11 @@ begin
       start_2  <= '0';
       t0 <= (others => '0');
       done_2 <= '0';
-      done <= '0';
+      done_uc2 <= '0';
     elsif rising_edge(clk) then
       start_1  <= '0';   -- 默认 0
       start_2 <= '0';   
-      done <= '0';
+
 
      case st_1 is
 
