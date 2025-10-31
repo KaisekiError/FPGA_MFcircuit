@@ -9,11 +9,11 @@ entity uC1_circuit is
     clk   : in  std_logic;
     rst   : in  std_logic;
     start : in  std_logic;
-    done  : out std_logic;     
+    done_uC1  : out std_logic;     
     uC1_in    : in std_logic_vector(31 downto 0);
     iL1_in    : in std_logic_vector(31 downto 0);
     iL2_in    : in std_logic_vector(31 downto 0);
-    uC1_out   : out std_logic_vector(31 downto 0);
+    uC1_out   : out std_logic_vector(31 downto 0)
   );
 end entity;
 
@@ -44,7 +44,7 @@ type state_uC_1 is (
   --整体计算
   EQ1_SUB3_WAIT_1,
   EQ1_ADD4_WAIT_1,
-  DONE
+  DONE_STATE_1
 );
 signal st_1 : state_uC_1 := IDLE;
 
@@ -54,8 +54,7 @@ type state_uC_2 is (
   --FPU2
   EQ1_ADD1_WAIT_2,
   EQ1_MUL2_WAIT_2,  
-  
-  DONE
+  DONE_STATE_2
 );
 signal st_2 : state_uC_2 := IDLE;
 
@@ -102,7 +101,7 @@ ufpu2: entity work.fpu
     elsif rising_edge(clk) then
       start_1  <= '0';   -- 默认 0
       start_2 <= '0';   
-      done <= '0';
+      done_uC1 <= '0';
       case st_1 is
 
         when IDLE =>
@@ -110,7 +109,7 @@ ufpu2: entity work.fpu
             st_1 <= EQ1_SUB1_WAIT_1;
             st_2 <=EQ1_ADD1_WAIT_2; 
             end if;
-        when EQ1_SUB1_WAIT_1 =>        -
+        when EQ1_SUB1_WAIT_1 =>
             opa_1 <= VS;
             opb_1 <= uC1_in;
             op_1 <= "001";--SUB
@@ -126,10 +125,10 @@ ufpu2: entity work.fpu
            end if;          
       
       when EQ1_SUB3_WAIT_1 =>                  
-           if ready_1 AND done_2 ='1'then
+           if (ready_1 ='1') AND (done_2 ='1') then
                opa_1 <= y_1;
                opb_1 <= y_2;
-               op <="001";--sub
+               op_1 <="001";--sub
                start_1 <= '1';
                st_1 <= EQ1_ADD4_WAIT_1;          
            end if;
@@ -137,17 +136,17 @@ ufpu2: entity work.fpu
            if ready_1 ='1'then
                opa_1 <= uC1_in;
                opb_1 <= y_1;
-               op <="000";--add
+               op_1 <="000";--add
                start_1 <= '1';
-               st_1 <= DONE;          
+               st_1 <= DONE_STATE_1;          
            end if;
 
-      when DONE =>
+      when DONE_STATE_1 =>
            if ready_1 ='1'then
                 uC1_out <= y_1;
                 st_1 <= IDLE;
                 st_2 <= IDLE;
-                done <= '1';
+                done_uC1 <= '1';
            end if;
                       
       when others => 
@@ -164,7 +163,7 @@ ufpu2: entity work.fpu
       when IDLE =>
     
       when EQ1_ADD1_WAIT_2 =>    
-                done_2 = '0';
+                done_2 <= '0';
                 opa_2 <= iL1_in;
                 opb_2 <= iL2_in;
                 op_2 <="000";--ADD
@@ -176,12 +175,12 @@ ufpu2: entity work.fpu
                 opb_2 <= K_C1;
                 op_2 <="010";--MUL
                 start_2 <= '1';
-                st_2 <= DONE;         
+                st_2 <= DONE_STATE_2;         
            end if;
-      when DONE =>          
+      when DONE_STATE_2 =>          
            if ready_2 ='1'then
-               done_2 = '1';
-               st_2 <= IDLE
+               done_2 <= '1';
+               st_2 <= IDLE;
            end if;
 
                       

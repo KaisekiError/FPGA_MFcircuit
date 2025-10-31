@@ -9,7 +9,7 @@ entity uC2_circuit is
     clk   : in  std_logic;
     rst   : in  std_logic;
     start : in  std_logic;
-    done_UC2  : out std_logic; 
+    done_uC2  : out std_logic; 
     uC2_in    : in std_logic_vector(31 downto 0);
     iL1_in    : in std_logic_vector(31 downto 0);
     iL2_in    : in std_logic_vector(31 downto 0);
@@ -45,26 +45,25 @@ architecture rtl of uC2_circuit is
   --------------------------------------------------------------------
   -- FSM states
  
-type state_uC2_2 is (
+type state_uC2_1 is (
   IDLE,
   --FPU1
   EQ2_MUL1_WAIT_1,
-  EQ2_MUL2_WAIT_1,
+  EQ2_SUB2_WAIT_1,
   --整体计算
-  EQ2_SUB3_WAIT_1,
-  EQ2_ADD4_WAIT_1,
-  DONE
+  EQ2_ADD3_WAIT_1,
+  DONE_STATE_1
 );
-signal st_1 : state_uC1_1 := IDLE;
+signal st_1 : state_uC2_1 := IDLE;
 
 
 type state_uC2_2 is (
   IDLE,
   EQ2_MUL1_WAIT_2,
   EQ2_MUL2_WAIT_2,  
-  DONE
+  DONE_STATE_2
 );
-signal st_2 : state_uC1_2 := IDLE;
+signal st_2 : state_uC2_2 := IDLE;
 
 begin
 
@@ -79,7 +78,7 @@ begin
       rmode_i  => "00",
       start_i  => start_1,
       output_o => y_1,
-      ready_o  => ready_2
+      ready_o  => ready_1
     );
 
   ufpu2: entity work.fpu
@@ -128,29 +127,29 @@ begin
            end if;
       when EQ2_SUB2_WAIT_1 =>          
            if ready_1 ='1' and done_2 = '1' then
-                opa <= y_1;
-                opb <= t0;
-                op <= "001";--SUB 
+                opa_1 <= y_1;
+                opb_1 <= t0;
+                op_1 <= "001";--SUB 
                 start_1 <='1';
-                st <= EQ2_ADD3_WAIT_1;
+                st_1 <= EQ2_ADD3_WAIT_1;
            end if;
       when EQ2_ADD3_WAIT_1 => 
            if ready ='1'then
-                opa <= y_1;
-                opb <= uC2_in;
-                op <= "000";
+                opa_1 <= y_1;
+                opb_1 <= uC2_in;
+                op_1 <= "000";
                 start_1 <='1';
-                st <= DONE;
+                st_1 <= DONE_STATE_1;
             end if;
-      when DONE =>
+      when DONE_STATE_1 =>
            if ready ='1'then
-                uC2_out <= y;
-                st <= IDLE;
-                done <= '1';
+                uC2_out <= y_1;
+                st_1 <= IDLE;
+                done_uC2 <= '1';
            end if;
                       
       when others => 
-           st <= IDLE;
+           st_1 <= IDLE;
           
      end case;
 
@@ -161,7 +160,7 @@ begin
             st_2 <= EQ2_MUL1_WAIT_2; 
           end if;
       when EQ2_MUL1_WAIT_2 => 
-          done_2 = '0';
+          done_2 <= '0';
           opa_2 <= K_C2 ;
           if iL1_in(31) = '0' then   -- iL1 >= 0
             opb_2 <= iL1_in;
@@ -183,9 +182,9 @@ begin
                  end if;
            op_2 <= "010";
            start_2 <='1';
-           st_2 <= DONE;
+           st_2 <= DONE_STATE_2;
            end if;
-      when DONE =>
+      when DONE_STATE_2 =>
            if ready_2 ='1'then
                 t0 <= y_2;
                 st_2 <= IDLE;

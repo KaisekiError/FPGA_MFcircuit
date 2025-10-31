@@ -9,7 +9,7 @@ entity il2_circuit is
     clk   : in  std_logic;
     rst   : in  std_logic;
     start : in  std_logic;
-    done_il2  : out std_logic;  
+    done_iL2  : out std_logic;  
     
     uC1_in    : in std_logic_vector(31 downto 0);
     uC2_in    : in std_logic_vector(31 downto 0);
@@ -64,14 +64,14 @@ begin
     if rst = '1' then
       st       <= IDLE;
       start_i  <= '0';
-      done_il2 <= '0';
+      done_iL2 <= '0';
     elsif rising_edge(clk) then
       start_i  <= '0';   -- 默认 0
       case st is
 
         when IDLE =>
           if start = '1' then
-            done_il2 <= '0';   -- 同上
+            done_iL2 <= '0';   -- 同上
             st <= EQ4_SUB1_WAIT; 
            end if;   
       when EQ4_SUB1_WAIT =>          --TODO: EQ4: uC1-uC2
@@ -97,11 +97,12 @@ begin
                op <= "000";--ADD
                start_i <='1';
                st <= DONE;
+           end if;
       when DONE =>
            if ready ='1'then
                 iL2_out <= y;
                 st <= IDLE;
-                done_il2 <= '1';
+                done_iL2 <= '1';
            end if;
                       
       when others => 
