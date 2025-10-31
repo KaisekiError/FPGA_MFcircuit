@@ -30,7 +30,7 @@ architecture rtl of uC1_circuit is
   signal start_2           : std_logic := '0';
   signal ready_2           : std_logic;
 
-  signal ready             : std_logic;   
+ 
   signal done_2            : std_logic;
   signal done_1            : std_logic;      
   
@@ -102,11 +102,12 @@ begin
     elsif rising_edge(clk) then
       start_1  <= '0';   -- 默认 0
       start_2  <= '0';   
-      done_uc1 <= '0';
+
       
       case st_1 is
         when IDLE =>
           if start = '1' then
+            done_uC1 <= '0';
             st_1 <= EQ1_SUB1_WAIT_1;
             st_2 <= EQ1_ADD1_WAIT_2; 
           end if;

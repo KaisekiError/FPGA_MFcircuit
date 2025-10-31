@@ -115,7 +115,8 @@ begin
 
       when IDLE =>
           if start = '1' then
-            st_1 <= EQ2_MUL1_WAIT_1; 
+            st_1 <= EQ2_MUL1_WAIT_1;
+            done_uC2 <= '0'; 
             end if;
       when EQ2_MUL1_WAIT_1 =>
                 opa_1 <= iL2_in;
@@ -123,16 +124,21 @@ begin
                 op_1 <= "010";--MUL 
                 start_1 <='1'; 
                 st_1 <= EQ2_SUB2_WAIT_1;
-      when EQ2_SUB2_WAIT_1 =>          
-           if ready_1 ='1' and done_2 = '1' then
+      when EQ2_SUB2_WAIT_1 =>
+            if ready_1 = '1' then
+            done_1 <= '1';
+            end if;          
+            if (done_1 = '1') and (done_2 = '1') then
                 opa_1 <= y_1;
                 opb_1 <= t0;
                 op_1 <= "001";--SUB 
                 start_1 <='1';
+                done_2  <= '0';   
+                done_1  <= '0';
                 st_1 <= EQ2_ADD3_WAIT_1;
            end if;
       when EQ2_ADD3_WAIT_1 => 
-           if ready ='1'then
+           if ready_1 ='1'then
                 opa_1 <= y_1;
                 opb_1 <= uC2_in;
                 op_1 <= "000";
@@ -140,7 +146,7 @@ begin
                 st_1 <= DONE_STATE_1;
             end if;
       when DONE_STATE_1 =>
-           if ready ='1'then
+           if ready_1 ='1'then
                 uC2_out <= y_1;
                 st_1 <= IDLE;
                 done_uC2 <= '1';
