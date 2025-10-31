@@ -118,13 +118,11 @@ begin
             st_1 <= EQ2_MUL1_WAIT_1; 
             end if;
       when EQ2_MUL1_WAIT_1 =>
-           if ready ='1'then
                 opa_1 <= iL2_in;
                 opb_1 <= K_C2;
                 op_1 <= "010";--MUL 
                 start_1 <='1'; 
                 st_1 <= EQ2_SUB2_WAIT_1;
-           end if;
       when EQ2_SUB2_WAIT_1 =>          
            if ready_1 ='1' and done_2 = '1' then
                 opa_1 <= y_1;
