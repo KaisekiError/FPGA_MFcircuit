@@ -123,7 +123,6 @@ begin
                 op_1 <= "010";--MUL 
                 start_1 <='1'; 
                 st_1 <= EQ2_SUB2_WAIT_1;
-           end if;
       when EQ2_SUB2_WAIT_1 =>          
            if ready_1 ='1' and done_2 = '1' then
                 opa_1 <= y_1;
