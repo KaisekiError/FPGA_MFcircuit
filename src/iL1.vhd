@@ -66,13 +66,13 @@ begin
       done_iL1 <= '0';
     elsif rising_edge(clk) then
       start_i  <= '0';   -- 默认 0
-      done_iL1 <= '0';   -- 同上
 
       case st is
 
         when IDLE =>
           if start = '1' then
-            st <= EQ3_SUB1_WAIT; 
+            st <= EQ3_SUB1_WAIT;
+            done_iL1 <= '0'; 
            end if;   
       when EQ3_SUB1_WAIT =>          --TODO: EQ3: uC1-VTH
             opa <= uC1_in;
