@@ -165,7 +165,7 @@ begin
           end if;
       when EQ2_MUL1_WAIT_2 => 
           done_2 <= '0';
-          opa_2 <= K_C2 ;
+          opa_2 <= K_C2_B;
           if iL1_in(31) = '0' then   -- iL1 >= 0
             opb_2 <= iL1_in;
           else                       -- iL1 < 0

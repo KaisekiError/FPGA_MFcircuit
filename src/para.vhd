@@ -9,7 +9,7 @@ package para is
   constant K_RC1     : std_logic_vector(31 downto 0) := x"38BEA671"; -- h/(R*C1) 
   constant K_C1      : std_logic_vector(31 downto 0) := x"3DBA2E8A"; -- h/C1
   constant K_C2      : std_logic_vector(31 downto 0) := x"40800000"; -- h/C2      
-  constant K_C2_B    : std_logic_vector(31 downto 0) := x"40800000"; -- h/C2*β     
+  constant K_C2_B    : std_logic_vector(31 downto 0) := x"44480000"; -- h/C2*β     
   constant K_L1      : std_logic_vector(31 downto 0) := x"35B2F4FD"; -- h/L1     
   constant K_L2      : std_logic_vector(31 downto 0) := x"33C339CC"; -- h/L2     
   constant K_VTH     : std_logic_vector(31 downto 0) := x"3F555555"; -- 1/2VTH  
