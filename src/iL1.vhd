@@ -75,13 +75,11 @@ begin
             st <= EQ3_SUB1_WAIT; 
            end if;   
       when EQ3_SUB1_WAIT =>          --TODO: EQ3: uC1-VTH
-           if ready = '1'then 
-               opa <= uC1_in;
-               opb <= VTH;
-               op <="001";--sub
-               start_i <= '1';
-               st <= EQ3_MUL2_WAIT;
-           end if;
+            opa <= uC1_in;
+            opb <= VTH;
+            op <="001";--sub
+            start_i <= '1';
+            st <= EQ3_MUL2_WAIT;
       when EQ3_MUL2_WAIT =>          --TODO: EQ3: (uC1-VTH)/L1
            if ready ='1' then
                opa <= y;

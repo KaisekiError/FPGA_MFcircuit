@@ -75,13 +75,11 @@ begin
             st <= EQ4_SUB1_WAIT; 
            end if;   
       when EQ4_SUB1_WAIT =>          --TODO: EQ4: uC1-uC2
-           if ready = '1'then 
-               opa <= uC1_in;
-               opb <= uC2_in;
-               op <="001";--sub
-               start_i <= '1';
-               st <= EQ4_MUL2_WAIT;
-           end if;
+          opa <= uC1_in;
+          opb <= uC2_in;
+          op <="001";--sub
+          start_i <= '1';
+          st <= EQ4_MUL2_WAIT;
       when EQ4_MUL2_WAIT =>          --TODO: EQ4: (uC1-uC2)/L2*h
            if ready ='1' then
                opa <= y;
