@@ -88,8 +88,9 @@ begin
           end if;
 
         when EQ4_SUB1_WAIT =>
-          cnt <= cnt + 1;
-          if cnt = 3 then
+          if cnt < 3 then
+            cnt <= cnt + 1;
+          elsif cnt = 3 then
             mul_a <= add_y;
             mul_b <= K_L2;
             cnt   <= 1;
@@ -97,8 +98,9 @@ begin
           end if;
 
         when EQ4_MUL2_WAIT =>
-          cnt <= cnt + 1;
-          if cnt = 3 then
+          if cnt < 3 then
+            cnt <= cnt + 1;
+          elsif cnt = 3 then
             add_a  <= mul_y;
             add_b  <= iL2_in;
             op <= '0';
@@ -107,8 +109,9 @@ begin
           end if;
 
         when EQ4_ADD3_WAIT =>
-          cnt <= cnt + 1;
-          if cnt = 3 then
+          if cnt < 3 then
+            cnt <= cnt + 1;
+          elsif cnt = 3 then
             iL2_out  <= add_y;
             done_iL2 <= '1';
             cnt      <= 0;

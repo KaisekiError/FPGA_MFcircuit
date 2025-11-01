@@ -119,8 +119,9 @@ begin
           end if;
 
         when EQ2_MUL1_WAIT_2 =>
-          cnt2 <= cnt2 + 1;
-          if cnt2 = 3 then
+          if cnt2 < 3 then
+            cnt2 <= cnt2 + 1;
+          elsif cnt2 = 3 then
             mul2_a <= mul2_y;
             if uC2_in(31) = '1' then  -- uC2 < 0
               mul2_b <= NEG_ONE;
@@ -134,8 +135,9 @@ begin
           end if;
 
         when EQ2_MUL2_WAIT_2 =>
-          cnt2 <= cnt2 + 1;
-          if cnt2 = 3 then
+          if cnt2 < 3 then
+            cnt2 <= cnt2 + 1;
+          elsif cnt2 = 3 then
             t0 <= mul2_y;
             done_2 <= '1';
             cnt2 <= 0;
@@ -163,8 +165,9 @@ begin
           end if;
 
         when EQ2_MUL1_WAIT_1 =>
-          cnt1 <= cnt1 + 1;
-          if cnt1 = 3 then
+          if cnt1 < 3 then
+            cnt1 <= cnt1 + 1;
+          elsif cnt1 = 3 then
             done_1 <= '1';
             cnt1 <= 0;
           end if;
@@ -177,8 +180,9 @@ begin
           end if;
 
         when EQ2_SUB2_WAIT_1 =>
-          cnt1 <= cnt1 + 1;
-          if cnt1 = 3 then
+          if cnt1 < 3 then
+            cnt1 <= cnt1 + 1;
+          elsif cnt1 = 3 then
             done_1 <= '0';
             done_2 <= '0';
             add_a <= add_y;
@@ -189,8 +193,9 @@ begin
           end if;
 
         when EQ2_ADD3_WAIT_1 =>
-          cnt1 <= cnt1 + 1;
-          if cnt1 = 3 then
+          if cnt1 < 3 then
+            cnt1 <= cnt1 + 1;
+          elsif cnt1 = 3 then
             uC2_out <= add_y;
             done_uC2 <= '1';
             cnt1 <= 0;
