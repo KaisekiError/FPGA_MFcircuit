@@ -1,0 +1,18 @@
+[General]
+ipc_version=4
+file=fp_add_sub
+module=FP_Add_Sub_Top
+target_device=gw5ast138c-005
+type=fp_add_sub
+version=1.0
+
+[Config]
+ClkEnable=false
+DisableIO=false
+LANG=1
+Mode=Add_Sub(input port to select the adder or subtractor)
+Nan=false
+Overflow=false
+Synthesis_tool=GowinSynthesis
+Underflow=false
+Zero=false

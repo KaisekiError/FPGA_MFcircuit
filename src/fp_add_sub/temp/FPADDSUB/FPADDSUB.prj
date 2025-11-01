@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gowin-synthesis-project>
+<Project>
+    <Version>beta</Version>
+    <Device id="GW5AST-138C" package="PBGA676A" speed="1" partNumber="GW5AST-LV138PG676AC1/I0"/>
+    <FileList>
+        <File path="C:/Gowin/Gowin_V1.9.12_x64/IDE/ipcore/FPADDSUB/data/FP_Add_Sub.v" type="verilog"/>
+        <File path="C:/Gowin/Gowin_V1.9.12_x64/IDE/ipcore/FPADDSUB/data/FP_Add_Sub_wrap.v" type="verilog"/>
+    </FileList>
+    <OptionList>
+        <Option type="disable_insert_pad" value="0"/>
+        <Option type="include_path" value="C:/Gowin/Gowin_V1.9.12_x64/IDE/ipcore/FPADDSUB/data"/>
+        <Option type="include_path" value="C:/Users/12828/Desktop/Project/FPGA/fpga_project/src_new/mf_circuit_new/src/fp_add_sub/temp/FPADDSUB"/>
+        <Option type="output_file" value="fp_add_sub.vg"/>
+        <Option type="output_template" value="fp_add_sub_tmp.vhd"/>
+        <Option type="output_vhdl_file" value="fp_add_sub.vhg"/>
+        <Option type="ram_balance" value="1"/>
+        <Option type="ram_rw_check" value="1"/>
+        <Option type="vcc" value="0.9"/>
+        <Option type="vccx" value="1.8"/>
+        <Option type="verilog_language" value="sysv-2017"/>
+    </OptionList>
+</Project>

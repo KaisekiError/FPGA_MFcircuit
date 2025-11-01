@@ -1,0 +1,16 @@
+[General]
+ipc_version=4
+file=fp_mult
+module=FP_Mult_Top
+target_device=gw5ast138c-005
+type=fp_mult
+version=1.0
+
+[Config]
+ClkEnable=false
+LANG=1
+Nan=false
+Overflow=false
+Synthesis_tool=GowinSynthesis
+Underflow=false
+Zero=false

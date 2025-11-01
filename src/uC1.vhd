@@ -8,32 +8,36 @@ entity uC1_circuit is
     clk      : in  std_logic;
     rst      : in  std_logic;
     start    : in  std_logic;
-    done_uc1 : out std_logic;     
+    done_uc1 : out std_logic;
     uC1_in   : in  std_logic_vector(31 downto 0);
     iL1_in   : in  std_logic_vector(31 downto 0);
     iL2_in   : in  std_logic_vector(31 downto 0);
-    uC1_out  : out std_logic_vector(31 downto 0)  -- 去掉分号
+    uC1_out  : out std_logic_vector(31 downto 0)
   );
 end entity;
 
 architecture rtl of uC1_circuit is
   --------------------------------------------------------------------
-  -- FPU, SIGN signal
+  -- FPU signals
   --------------------------------------------------------------------
-  signal opa_1, opb_1, y_1 : std_logic_vector(31 downto 0);
-  signal op_1              : std_logic_vector(2 downto 0);
-  signal start_1           : std_logic := '0';
-  signal ready_1           : std_logic;
+  -- FSM1 
+  signal add1_a, add1_b, add1_y : std_logic_vector(31 downto 0);
+  signal op_1                   : std_logic; -- 0:add, 1:sub
+  signal mul1_a, mul1_b, mul1_y : std_logic_vector(31 downto 0);
 
-  signal opa_2, opb_2, y_2 : std_logic_vector(31 downto 0);
-  signal op_2              : std_logic_vector(2 downto 0);
-  signal start_2           : std_logic := '0';
-  signal ready_2           : std_logic;
+  -- FSM2 
+  signal add2_a, add2_b, add2_y : std_logic_vector(31 downto 0);
+  signal op_2                   : std_logic;
+  signal mul2_a, mul2_b, mul2_y : std_logic_vector(31 downto 0);
 
- 
-  signal done_2            : std_logic;
-  signal done_1            : std_logic;      
-  
+  --------------------------------------------------------------------
+  -- counters & flags
+  --------------------------------------------------------------------
+  signal cnt1    : integer range 0 to 3 := 0;
+  signal cnt2    : integer range 0 to 3 := 0;
+  signal done_1  : std_logic := '0';
+  signal done_2  : std_logic := '0';
+
   --------------------------------------------------------------------
   -- FSM states
   --------------------------------------------------------------------
@@ -42,10 +46,10 @@ architecture rtl of uC1_circuit is
     --FPU1
     EQ1_SUB1_WAIT_1,
     EQ1_MUL2_WAIT_1,
-    --整体计算
+    --WHOLE
     EQ1_SUB3_WAIT_1,
     EQ1_ADD4_WAIT_1,
-    DONE
+    DONE_STATE_1
   );
   signal st_1 : state_uC_1 := IDLE;
 
@@ -53,146 +57,169 @@ architecture rtl of uC1_circuit is
     IDLE,
     --FPU2
     EQ1_ADD1_WAIT_2,
-    EQ1_MUL2_WAIT_2,  
-    DONE
+    EQ1_MUL2_WAIT_2,
+    DONE_STATE_2
   );
   signal st_2 : state_uC_2 := IDLE;
 
 begin
 
-  -- FPU1 实例化
-  ufpu1: entity work.fpu
+  --------------------------------------------------------------------
+  -- FPU instances
+  --------------------------------------------------------------------
+  u_addsub1: entity work.FP_Add_Sub_Top
     port map(
-      clk_i    => clk,
-      opa_i    => opa_1,
-      opb_i    => opb_1,
-      fpu_op_i => op_1,
-      rmode_i  => "00",
-      start_i  => start_1,
-      output_o => y_1,
-      ready_o  => ready_1
+      clk    => clk,
+      rstn   => not rst,
+      op     => op_1,
+      data_a => add1_a,
+      data_b => add1_b,
+      result => add1_y
     );
 
-  -- FPU2 实例化  
-  ufpu2: entity work.fpu
+  u_addsub2: entity work.FP_Add_Sub_Top
     port map(
-      clk_i    => clk,
-      opa_i    => opa_2,
-      opb_i    => opb_2,
-      fpu_op_i => op_2,
-      rmode_i  => "00",
-      start_i  => start_2,
-      output_o => y_2,
-      ready_o  => ready_2
+      clk    => clk,
+      rstn   => not rst,
+      op     => op_2,
+      data_a => add2_a,
+      data_b => add2_b,
+      result => add2_y
+    );
+
+  u_mul1: entity work.FP_Mult_Top
+    port map(
+      clk    => clk,
+      rstn   => not rst,
+      data_a => mul1_a,
+      data_b => mul1_b,
+      result => mul1_y
+    );
+
+  u_mul2: entity work.FP_Mult_Top
+    port map(
+      clk    => clk,
+      rstn   => not rst,
+      data_a => mul2_a,
+      data_b => mul2_b,
+      result => mul2_y
     );
 
   -------------------------------------------------------------------
-  -- FSM 主进程
+  -- Main Process
   -------------------------------------------------------------------
   process(clk, rst)
   begin
     if rst = '1' then
       st_1      <= IDLE;
       st_2      <= IDLE;
-      start_1   <= '0';
-      start_2   <= '0';
+      cnt1      <= 0;
+      cnt2      <= 0;
+      done_1    <= '0';
       done_2    <= '0';
       done_uc1  <= '0';
-      done_1    <= '0';
     elsif rising_edge(clk) then
-      start_1  <= '0';   -- 默认 0
-      start_2  <= '0';   
-
-      
-      case st_1 is
-        when IDLE =>
-          if start = '1' then
-            done_uC1 <= '0';
-            st_1 <= EQ1_SUB1_WAIT_1;
-            st_2 <= EQ1_ADD1_WAIT_2; 
-          end if;
-          
-        when EQ1_SUB1_WAIT_1 =>
-          opa_1   <= VS;
-          opb_1   <= uC1_in;
-          op_1    <= "001";  -- SUB
-          start_1 <= '1';
-          st_1    <= EQ1_MUL2_WAIT_1;
-          
-        when EQ1_MUL2_WAIT_1 =>
-          if ready_1 = '1' then 
-            opa_1   <= y_1;
-            opb_1   <= K_RC1;
-            op_1    <= "010";  -- MUL
-            start_1 <= '1';
-            done_1  <= '1';  
-            st_1    <= EQ1_SUB3_WAIT_1;
-          end if;          
-      
-        when EQ1_SUB3_WAIT_1 =>
-          if ready_1 = '1' then
-            done_1 <= '1';
-          end if;                   
-          if (done_1 = '1') and (done_2 = '1') then
-            opa_1   <= y_1;
-            opb_1   <= y_2;
-            op_1    <= "001";  -- SUB (修正：op_1 不是 op)
-            start_1 <= '1';
-            done_2  <= '0';    -- 修正：使用 <= 而不是 =
-            done_1  <= '0';    -- 修正：使用 <= 而不是 =
-            st_1    <= EQ1_ADD4_WAIT_1;          
-          end if;
-          
-        when EQ1_ADD4_WAIT_1 =>
-          if ready_1 = '1' then
-            opa_1   <= uC1_in;
-            opb_1   <= y_1;
-            op_1    <= "000";  -- ADD (修正：op_1 不是 op)
-            start_1 <= '1';
-            st_1    <= DONE;          
-          end if;
-
-        when DONE =>
-          if ready_1 = '1' then
-            uC1_out  <= y_1;
-            st_1     <= IDLE;
-            st_2     <= IDLE;
-            done_uc1 <= '1';
-          end if;
-                      
-        when others => 
-          st_1 <= IDLE;
-      end case;
 
       case st_2 is
         when IDLE =>
-          -- 等待启动
-          
+          if start = '1' then
+            done_2 <= '0';
+            add2_a <= iL1_in;
+            add2_b <= iL2_in;
+            op_2 <= '0'; 
+            cnt2 <= 1;  --
+            st_2 <= EQ1_ADD1_WAIT_2;
+          end if;
+
         when EQ1_ADD1_WAIT_2 =>
-          opa_2   <= iL1_in;
-          opb_2   <= iL2_in;
-          op_2    <= "000";  -- ADD
-          start_2 <= '1';
-          st_2    <= EQ1_MUL2_WAIT_2;
-          
+          cnt2 <= cnt2 + 1;
+          if cnt2 = 3 then
+            mul2_a <= add2_y;
+            mul2_b <= K_C1;
+            cnt2 <= 1; --
+            st_2 <= EQ1_MUL2_WAIT_2;
+          end if;
+
         when EQ1_MUL2_WAIT_2 =>
-          if ready_2 = '1' then
-            opa_2   <= y_2;
-            opb_2   <= K_C1;
-            op_2    <= "010";  -- MUL
-            start_2 <= '1';
-            st_2    <= DONE;         
-          end if;
-          
-        when DONE =>
-          if ready_2 = '1' then
+          cnt2 <= cnt2 + 1;
+          if cnt2 = 3 then
             done_2 <= '1';
-            st_2   <= IDLE;  
+            cnt2 <= 0;
+            st_2 <= DONE_STATE_2;
           end if;
-                      
-        when others => 
+
+        when DONE_STATE_2 =>
+          st_2 <= IDLE;
+
+        when others =>
           st_2 <= IDLE;
       end case;
+
+
+      case st_1 is
+        when IDLE =>
+          if start = '1' then
+            done_uc1 <= '0';
+            done_1   <= '0';
+            add1_a <= VS;
+            add1_b <= uC1_in;
+            op_1 <= '1';
+            cnt1 <= 1;  --
+            st_1 <= EQ1_SUB1_WAIT_1;
+          end if;
+
+        when EQ1_SUB1_WAIT_1 =>
+          cnt1 <= cnt1 + 1;
+          if cnt1 = 3 then
+            mul1_a <= add1_y;
+            mul1_b <= K_RC1;
+            cnt1 <= 1;  --
+            st_1 <= EQ1_MUL2_WAIT_1;
+          end if;
+
+        when EQ1_MUL2_WAIT_1 =>
+          cnt1 <= cnt1 + 1;
+          if cnt1 = 3 then
+            done_1 <= '1';
+            cnt1 <= 0;
+          end if;
+          if (done_1 = '1') and (done_2 = '1') and (cnt1 = 0) then
+            add1_a <= mul1_y;
+            add1_b <= mul2_y;
+            op_1 <= '1';
+            cnt1 <= 1;  --
+            st_1 <= EQ1_SUB3_WAIT_1;
+          end if;
+
+        when EQ1_SUB3_WAIT_1 =>
+          done_1 <= '0';
+          done_2 <= '0';
+          cnt1 <= cnt1 + 1;
+          if cnt1 = 3 then
+            add1_a <= add1_y;
+            add1_b <= uC1_in;
+            op_1 <= '0';
+            cnt1 <= 1; --
+            st_1 <= EQ1_ADD4_WAIT_1;
+          end if;
+
+        when EQ1_ADD4_WAIT_1 =>
+          cnt1 <= cnt1 + 1;
+          if cnt1 = 3 then
+            uC1_out <= add1_y;
+            done_uc1 <= '1';
+            cnt1 <= 0;
+            st_1 <= DONE_STATE_1;
+          end if;
+
+        when DONE_STATE_1 =>
+          st_1 <= IDLE;
+
+        when others =>
+          st_1 <= IDLE;
+      end case;
+
     end if;
   end process;
+
 end architecture;
