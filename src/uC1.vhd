@@ -30,6 +30,8 @@ architecture rtl of uC1_circuit is
   signal op_2                   : std_logic;
   signal mul2_a, mul2_b, mul2_y : std_logic_vector(31 downto 0);
 
+  signal rstn : std_logic;
+
   --------------------------------------------------------------------
   -- counters & flags
   --------------------------------------------------------------------
@@ -63,14 +65,14 @@ architecture rtl of uC1_circuit is
   signal st_2 : state_uC_2 := IDLE;
 
 begin
-
+  rstn <= not rst;
   --------------------------------------------------------------------
   -- FPU instances
   --------------------------------------------------------------------
   u_addsub1: entity work.FP_Add_Sub_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       op     => op_1,
       data_a => add1_a,
       data_b => add1_b,
@@ -80,7 +82,7 @@ begin
   u_addsub2: entity work.FP_Add_Sub_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       op     => op_2,
       data_a => add2_a,
       data_b => add2_b,
@@ -90,7 +92,7 @@ begin
   u_mul1: entity work.FP_Mult_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       data_a => mul1_a,
       data_b => mul1_b,
       result => mul1_y
@@ -99,7 +101,7 @@ begin
   u_mul2: entity work.FP_Mult_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       data_a => mul2_a,
       data_b => mul2_b,
       result => mul2_y

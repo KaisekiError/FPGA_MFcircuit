@@ -23,6 +23,7 @@ architecture rtl of il1_circuit is
   signal add_a, add_b, add_y : std_logic_vector(31 downto 0);
   signal mul_a, mul_b, mul_y : std_logic_vector(31 downto 0);
   signal op : std_logic;
+  signal rstn : std_logic;
 
   --------------------------------------------------------------------
   -- FSM states
@@ -38,13 +39,14 @@ architecture rtl of il1_circuit is
   signal cnt : integer range 0 to 3 := 0;
 
 begin
+  rstn <= not rst;
   --------------------------------------------------------------------
   -- FPU instances
   --------------------------------------------------------------------
   u_addsub: entity work.FP_Add_Sub_Top
     port map(
       clk     => clk,
-      rstn    => not rst,
+      rstn    => rstn,
       op      => op,
       data_a  => add_a,
       data_b  => add_b,
@@ -54,7 +56,7 @@ begin
   u_mul: entity work.FP_Mult_Top
     port map(
       clk     => clk,
-      rstn    => not rst,
+      rstn    => rstn,
       data_a  => mul_a,
       data_b  => mul_b,
       result  => mul_y

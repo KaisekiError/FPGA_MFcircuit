@@ -25,6 +25,7 @@ architecture rtl of uC2_circuit is
   signal mul1_a, mul1_b, mul1_y : std_logic_vector(31 downto 0);
   signal mul2_a, mul2_b, mul2_y : std_logic_vector(31 downto 0);
   signal op : std_logic;  -- 0:add, 1:sub
+  signal rstn : std_logic;
 
   --------------------------------------------------------------------
   -- counters / flags
@@ -56,14 +57,14 @@ architecture rtl of uC2_circuit is
   signal st_2 : state_uC2_2 := IDLE;
 
 begin
-
+  rstn <= not rst;
   --------------------------------------------------------------------
   -- Gowin IP 实例化
   --------------------------------------------------------------------
   u_addsub: entity work.FP_Add_Sub_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       op     => op,
       data_a => add_a,
       data_b => add_b,
@@ -73,7 +74,7 @@ begin
   u_mul1: entity work.FP_Mult_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       data_a => mul1_a,
       data_b => mul1_b,
       result => mul1_y
@@ -82,7 +83,7 @@ begin
   u_mul2: entity work.FP_Mult_Top
     port map(
       clk    => clk,
-      rstn   => not rst,
+      rstn   => rstn,
       data_a => mul2_a,
       data_b => mul2_b,
       result => mul2_y
